@@ -3,6 +3,20 @@
 #include "gf2d_sprite.h"
 #include "simple_logger.h"
 
+typedef struct
+{
+	// my algorithm should go here
+	void *data;
+	size_t numElements;
+	size_t elementSize;
+}PriorityQueue;
+
+PriorityQueue *pq_new(size_t elementSize);
+void pq_delete(PriorityQueue *pq);
+void *pq_delete_max(PriorityQueue *pq);
+void pq_insert(PriorityQueue *pq, void *data, int priority);
+
+
 int main(int argc, char * argv[])
 {
     /*variable declarations*/
