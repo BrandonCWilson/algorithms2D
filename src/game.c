@@ -15,14 +15,25 @@ void draw_stack(Sprite *brick, Vector2D start, Brick *bricklist, unsigned int co
 	int brickheight = 32;
 	int brickwidth = 32;
 	Vector2D drawPosition;
+	PriorityQueue *pq = pq_new(count);
+	Brick tmpBrick;
 	if (!brick)return;
 	if (!bricklist)return;
+
+	// enqueue everything
+	for (i = 0; i < count; i++)
+	{
+		pq_insert(pq, &bricklist[i], bricklist[i].width);
+	}
+
 	for (i = 0; i < count; i++)
 	{
 		//vertical draw
-		drawPosition.x = start.x - ((bricklist[i].width * brickwidth) / 2);
+		tmpBrick = *(Brick *)pq_delete_max(pq);
+		
+		drawPosition.x = start.x - ((tmpBrick.width * brickwidth) / 2);
 		drawPosition.y = start.y - ((i + 1) * brickheight);
-		for (j = 0; j < bricklist[i].width; j++)
+		for (j = 0; j < tmpBrick.width; j++)
 		{
 			//horizontal draw
 			drawPosition.x += brickwidth;
@@ -60,22 +71,6 @@ int main(int argc, char * argv[])
 		{ 22 }
 	};
 	
-	PriorityQueue *pq = pq_new(10);
-	int i;
-	static Brick bricklist2[] =
-	{
-		{ 2 },
-		{ 7 },
-		{ 1 },
-		{ 5 },
-		{ 14 },
-		{ 9 },
-		{ 13 },
-		{ 24 },
-		{ 16 },
-		{ 22 }
-	};
-
 	int mx, my;
 	float mf = 0;
 	Sprite *mouse;
@@ -102,16 +97,6 @@ int main(int argc, char * argv[])
 	brick = gf2d_sprite_load_all("images/brick.png", 32, 32, 16);
 	mouse = gf2d_sprite_load_all("images/pointer.png", 32, 32, 16);
 
-	// push data into the queue
-	for (i = 0; i < 10; i++)
-	{
-		pq_insert(pq, &bricklist[i], bricklist[i].width);
-	}
-	// take data out of the queue
-	for (i = 0; i < 10; i++)
-	{
-		bricklist2[i] = *(Brick *)pq_delete_max(pq);		
-	}
 	/*main game loop*/
 	while (!done)
 	{
@@ -128,7 +113,7 @@ int main(int argc, char * argv[])
 									 //backgrounds drawn first
 		gf2d_sprite_draw_image(sprite, vector2d(0, 0));
 
-		draw_stack(brick, vector2d(600, 700), bricklist2, 10);
+		draw_stack(brick, vector2d(600, 700), bricklist, 10);
 
 		//UI elements last
 		gf2d_sprite_draw(

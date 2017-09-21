@@ -16,16 +16,38 @@ PriorityQueue *pq_new(int numElements)
 	memset(pq->nodeList, NULL, sizeof(PriorityNode)*numElements);
 
 	pq->numElements = numElements;
-	if (pq->numElements == 10)
-	{
-		slog("created a pq with 10 slots;");
-	}
 	return pq;
 }
 
 void pq_delete(PriorityNode *pnode)
 {
+	if (!pnode)
+		return;
 	memset(pnode,NULL,sizeof(PriorityNode));
+}
+
+void pq_free_node(PriorityNode *pnode)
+{
+	if (!pnode)
+		return;
+	if (pnode->data != NULL)
+	{
+		slog("Not free-ing this node, there's still data here.");
+		return;
+	}
+	free(pnode);
+}
+
+void pq_free_queue(PriorityQueue *pq) 
+{
+	int i;
+	if (!pq)
+		return;
+	for (i = 0; i < pq->numElements; i++)
+	{
+		pq_free_node(&pq->nodeList[i]);
+	}
+	free(pq);
 }
 
 void *pq_delete_max(PriorityQueue *pq)
@@ -50,7 +72,6 @@ void *pq_delete_max(PriorityQueue *pq)
 		}
 	}
 	data = max->data;
-	slog("Width returned: %i", max->priority);
 	pq_delete(max);
 	return data;
 }
