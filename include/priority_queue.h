@@ -18,6 +18,8 @@ typedef struct
 
 PriorityQueue *pq_new(int numElements);
 
+void pq_free_queue(PriorityQueue *pq);
+
 void pq_delete(PriorityNode *pnode);
 
 void *pq_delete_max(PriorityQueue *pq);

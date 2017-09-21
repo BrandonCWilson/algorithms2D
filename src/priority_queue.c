@@ -30,11 +30,6 @@ void pq_free_node(PriorityNode *pnode)
 {
 	if (!pnode)
 		return;
-	if (pnode->data != NULL)
-	{
-		slog("Not free-ing this node, there's still data here.");
-		return;
-	}
 	free(pnode);
 }
 
@@ -55,6 +50,9 @@ void *pq_delete_max(PriorityQueue *pq)
 	int i;
 	PriorityNode *max = NULL;
 	void *data;
+
+	if (!pq)
+		return NULL;
 
 	for (i = 0; i < pq->numElements; i++)
 	{
@@ -80,6 +78,9 @@ void *pq_delete_max(PriorityQueue *pq)
 void pq_insert(PriorityQueue *pq, void *data, int priority) 
 {
 	int i;
+
+	if ((!pq) || (!data))
+		return;
 
 	for (i = 0; i < pq->numElements; i++)
 	{
