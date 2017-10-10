@@ -17,4 +17,8 @@ struct LinkedList_S
 	struct Node_S *head;
 };
 
+Node *linklist_new_node();
+
+int linklist_free_node(Node *node);
+
 #endif

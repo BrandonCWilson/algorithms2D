@@ -87,8 +87,10 @@
     <ClCompile Include="..\..\src\gf2d_sprite.c" />
     <ClCompile Include="..\..\src\gf2d_vector.c" />
     <ClCompile Include="..\..\src\linkedlist.c" />
+    <ClCompile Include="..\..\src\pathfinding.c" />
     <ClCompile Include="..\..\src\priority_queue.c" />
     <ClCompile Include="..\..\src\simple_logger.c" />
+    <ClCompile Include="..\..\src\tilemap.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\gf2d_draw.h" />
@@ -98,8 +100,10 @@
     <ClInclude Include="..\..\include\gf2d_types.h" />
     <ClInclude Include="..\..\include\gf2d_vector.h" />
     <ClInclude Include="..\..\include\linkedlist.h" />
+    <ClInclude Include="..\..\include\pathfinding.h" />
     <ClInclude Include="..\..\include\priority_queue.h" />
     <ClInclude Include="..\..\include\simple_logger.h" />
+    <ClInclude Include="..\..\include\tilemap.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

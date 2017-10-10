@@ -1,13 +1,12 @@
-#include <SDL.h>
-#include "linkedlist.h"
-
 #ifndef _PRIORITY_QUEUE_H
 #define _PRIORITY_QUEUE_H
+#include <SDL.h>
 
-typedef struct
+typedef struct PriorityNode_S
 {
 	void *data;
-	Uint32 *priority;
+	float *priority;
+	struct PriorityNode_S *next;
 }PriorityNode;
 
 typedef struct
@@ -15,6 +14,11 @@ typedef struct
 	PriorityNode *nodeList;
 	int numElements;
 }PriorityQueue;
+
+typedef struct
+{
+	PriorityNode *head;
+}PriorityQueueList;
 
 /**
 @brief allocate memory for a new priorityqueue
@@ -49,6 +53,27 @@ void *pq_delete_max(PriorityQueue *pq);
 @param priority the priority level of the data
 */
 void pq_insert(PriorityQueue *pq, void *data, int priority);
+
+/*
+@brief pop off the maximum priority data from the list
+@param pqlist the list the remove from
+@return a pointer to the data that has been removed
+*/
+void *pqlist_delete_max(PriorityQueueList *pqlist);
+
+/*
+@brief declare a new priority queue without a set number of elements
+@return a pointer to the new pqlist
+*/
+PriorityQueueList *pqlist_new();
+
+/*
+@brief insert some new data into a pqlist
+@param pqlist the queue to insert into
+@param data the data to be inserted
+@param priority the priority level of the data
+*/
+void pqlist_insert(PriorityQueueList *pqlist, void *data, int priority);
 
 #endif
 #pragma once

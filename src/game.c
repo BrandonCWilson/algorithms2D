@@ -3,6 +3,43 @@
 #include "gf2d_sprite.h"
 #include "simple_logger.h"
 #include "tilemap.h"
+#include "priority_queue.h"
+#include "pathfinding.h"
+
+typedef struct
+{
+	int width;
+}Brick;
+
+void draw_stack(Sprite *brick, Vector2D start, Brick *bricklist, unsigned int count)
+{
+	unsigned int i, j;
+	int brickheight = 32;
+	int brickwidth = 32;
+	Vector2D drawPosition;
+	if (!brick)return;
+	if (!bricklist)return;
+	for (i = 0; i < count; i++)
+	{
+		//vertical draw
+		drawPosition.x = start.x - ((bricklist[i].width * brickwidth) / 2);
+		drawPosition.y = start.y - ((i + 1) * brickheight);
+		for (j = 0; j < bricklist[i].width; j++)
+		{
+			//horizontal draw
+			drawPosition.x += brickwidth;
+			gf2d_sprite_draw(
+				brick,
+				drawPosition,
+				NULL,
+				NULL,
+				NULL,
+				NULL,
+				NULL,
+				0);
+		}
+	}
+}
 
 int main(int argc, char * argv[])
 {
@@ -10,6 +47,31 @@ int main(int argc, char * argv[])
     int done = 0;
     const Uint8 * keys;
     Sprite *sprite;
+
+	PriorityQueueList *pqlist;
+	int i;
+	PF_Graph *graph;
+
+	static Brick bricklist[] =
+	{
+		{ 2 },
+		{ 7 },
+		{ 1 },
+		{ 5 },
+		{ 14 },
+		{ 9 },
+		{ 13 },
+		{ 24 },
+		{ 16 },
+		{ 22 }
+	};
+	Sprite *brick;
+
+	Brick bricklist2[10];
+
+	Vector2D testPath[2];
+	PF_Path *p;
+	PF_PathArray *pa;
     
     int mx,my;
     float mf = 0;
@@ -36,12 +98,29 @@ int main(int argc, char * argv[])
     /*demo setup*/
 
     sprite = gf2d_sprite_load_image("images/backgrounds/bg_flat.png");
-    mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16);
+    mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16); 
+	brick = gf2d_sprite_load_all("images/brick.png", 32, 32, 16);
     
     map = tilemap_load("levels/tilemap.map");
     vector2d_copy(path[0],map->start);
     vector2d_copy(path[1],map->end);
-    /*main game loop*/
+
+	pqlist = pqlist_new();
+	for (i = 0; i < 10; i++)
+	{
+		pqlist_insert(pqlist, &bricklist[i], bricklist[i].width);
+	}
+	for (i = 0; i < 10; i++)
+	{
+		bricklist2[i] = *(Brick *)pqlist_delete_max(pqlist);
+	}
+
+	slog("calling graph generator..");
+	graph = pathfinding_generate_graph_from_tilemap(map);
+	p = pathfinding_get_path(graph, path[0], path[1]);
+	pa = convert_path_to_vector2d_array(p);
+	slog("%i", graph->nodes[0]->num_con);
+	/*main game loop*/
     while(!done)
     {
         SDL_PumpEvents();   // update SDL's internal event structures
@@ -55,9 +134,11 @@ int main(int argc, char * argv[])
         // all drawing should happen betweem clear_screen and next_frame
             //backgrounds drawn first
             gf2d_sprite_draw_image(sprite,vector2d(0,0));
-                        
+
+			//draw_stack(brick, vector2d(600, 700), bricklist2, 10);
+       
             tilemap_draw(map,vector2d(86,24));
-            tilemap_draw_path(path,2, map,vector2d(86,24));
+            tilemap_draw_path(pa->path,pa->count, map,vector2d(86,24));
             //UI elements last
             gf2d_sprite_draw(
                 mouse,
