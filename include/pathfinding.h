@@ -34,6 +34,7 @@ typedef struct PF_Path_S
 {
 	PF_Path *parent;
 	PF_Node *current;
+	PF_Path *child;
 	PF_Edge *edgeTaken;
 } PF_Path;
 

@@ -276,6 +276,7 @@ PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
 	PriorityQueueList *pq;
 	PriorityQueueList *pqEdges;
 	PF_Path *path;
+	PF_Path *tmp;
 	PF_Edge *tmpEdge;
 	PF_Node *startNode;
 	PF_Node *endNode;
@@ -321,6 +322,7 @@ PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
 			path->edgeTaken = curPath->current->connections[i];
 			path->current = pathfinding_get_other_from_edge(curPath->current,curPath->current->connections[i]);
 			path->parent = curPath;
+			path->parent->child = path;
 			priority = pathfinding_get_heuristic(path->current, endNode);
 			if (priority < 0)
 			{
@@ -335,5 +337,26 @@ PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
 		if (curPath == NULL)
 			break;
 	}
+	//FIXME
+	// there's a lot of paths being allocated but not returned
+	// should really find a way to track and free them
+	/*
+	path = pqlist_delete_max(pq);
+	i = 0;
+	while (path != NULL)
+	{
+		while (path != NULL)
+		{
+			if (path->child != NULL)
+				path->child->parent = NULL;
+			tmp = path;
+			path = path->parent;
+			free(tmp);
+			i++;
+			slog("running....");
+		}
+		path = pqlist_delete_max(pq);
+	}
+	*/
 	return curPath;
 }
