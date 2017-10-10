@@ -102,6 +102,10 @@ int main(int argc, char * argv[])
 	brick = gf2d_sprite_load_all("images/brick.png", 32, 32, 16);
     
     map = tilemap_load("levels/tilemap.map");
+	if (!map)
+	{
+		slog("map failed to load");
+	}
     vector2d_copy(path[0],map->start);
     vector2d_copy(path[1],map->end);
 

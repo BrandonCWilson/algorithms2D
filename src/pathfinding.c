@@ -272,12 +272,11 @@ int is_sub_path_on_path(PF_Path *sub, PF_Path *path)
 
 PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
 {
-	Vector2D *rtn;
 	PriorityQueueList *pq;
 	PriorityQueueList *pqEdges;
+	PriorityQueueList *pqPaths;
 	PF_Path *path;
-	PF_Path *tmp;
-	PF_Edge *tmpEdge;
+	PF_Path *tmpPath;
 	PF_Node *startNode;
 	PF_Node *endNode;
 	PF_Path *curPath;
@@ -292,7 +291,8 @@ PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
 	}
 	pq = pqlist_new();
 	pqEdges = pqlist_new();
-	if ((!pq)||(!pqEdges))
+	pqPaths = pqlist_new();
+	if ((!pq)||(!pqEdges)||(!pqPaths))
 	{
 		slog("Unable to find a path without a pqlist");
 		return NULL;
@@ -322,7 +322,6 @@ PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
 			path->edgeTaken = curPath->current->connections[i];
 			path->current = pathfinding_get_other_from_edge(curPath->current,curPath->current->connections[i]);
 			path->parent = curPath;
-			path->parent->child = path;
 			priority = pathfinding_get_heuristic(path->current, endNode);
 			if (priority < 0)
 			{
@@ -331,6 +330,7 @@ PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
 			}
 			pqlist_insert(pqEdges, path->edgeTaken, 1);
 			pqlist_insert(pq, path, priority * -1);
+			pqlist_insert(pqPaths, path, 1);
 		}
 
 		curPath = pqlist_delete_max(pq);
@@ -338,25 +338,22 @@ PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
 			break;
 	}
 	//FIXME
-	// there's a lot of paths being allocated but not returned
-	// should really find a way to track and free them
-	/*
-	path = pqlist_delete_max(pq);
-	i = 0;
+	// free the temporary paths we built on the way
+	path = pqlist_delete_max(pqPaths);
 	while (path != NULL)
 	{
-		while (path != NULL)
+		if (is_sub_path_on_path(path, curPath) == 0)
 		{
-			if (path->child != NULL)
-				path->child->parent = NULL;
-			tmp = path;
-			path = path->parent;
-			free(tmp);
-			i++;
-			slog("running....");
+			tmpPath = path;
+			path_free(tmpPath);
 		}
-		path = pqlist_delete_max(pq);
+		path = pqlist_delete_max(pqPaths);
 	}
-	*/
+	free(pqPaths);
+	// free the other two queues
+	while (pqlist_delete_max(pqEdges) != NULL);
+	while (pqlist_delete_max(pq) != NULL);
+	free(pqEdges);
+	free(pq);
 	return curPath;
 }
