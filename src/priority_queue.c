@@ -42,6 +42,8 @@ void *pqlist_delete_max(PriorityQueueList *pq)
 		slog("cannot delete max from a null pqlist..");
 		return NULL;
 	}
+	if (pq->head == NULL)
+		return NULL;
 	if(pq->head->next)
 	{
 		tmp = pq->head;
@@ -50,10 +52,6 @@ void *pqlist_delete_max(PriorityQueueList *pq)
 		{
 			if ((int)max->priority < (int)tmp->next->priority)
 			{
-				if (max->priority == 0)
-				{
-					slog("%i < %i", max->priority, tmp->next->priority);
-				}
 				prev = tmp;
 				max = tmp->next;
 			}

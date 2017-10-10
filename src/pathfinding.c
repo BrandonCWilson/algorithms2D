@@ -233,7 +233,6 @@ PF_PathArray *convert_path_to_vector2d_array(PF_Path *path)
 		slog("null patharray allocation");
 		return NULL;
 	}
-	slog("calling convert path..");
 	v = (Vector2D *)malloc(sizeof(Vector2D) * i);
 	if (!v)
 	{
@@ -245,7 +244,6 @@ PF_PathArray *convert_path_to_vector2d_array(PF_Path *path)
 	memset(v, 0, sizeof(Vector2D) * i);
 	rtn->count = i;
 	rtn->path = v;
-	slog("%i", i);
 	cursor = path;
 	i = 0;
 	while (i < rtn->count)
@@ -255,8 +253,21 @@ PF_PathArray *convert_path_to_vector2d_array(PF_Path *path)
 		cursor = cursor->parent;
 		i++;
 	}
-	slog("%i", i);
 	return rtn;
+}
+
+int is_sub_path_on_path(PF_Path *sub, PF_Path *path)
+{
+	PF_Path *cursor = path;
+	if ((!path) || (!sub))
+		return -1;
+	while (cursor != NULL)
+	{
+		if (cursor == sub)
+			return 1;
+		cursor = cursor->parent;
+	}
+	return 0;
 }
 
 PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
@@ -265,6 +276,7 @@ PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
 	PriorityQueueList *pq;
 	PriorityQueueList *pqEdges;
 	PF_Path *path;
+	PF_Edge *tmpEdge;
 	PF_Node *startNode;
 	PF_Node *endNode;
 	PF_Path *curPath;
@@ -289,7 +301,7 @@ PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
 	curPath = path;
 	priority = pathfinding_get_heuristic(path->current, endNode);
 	pqlist_insert(pq, path, priority * -1);
-	while (true)
+	while (curPath->current != endNode)
 	{
 		// insert all edges into the pqlist that are not already in the pqlist
 		for (i = 0; i < curPath->current->num_con; i++)
@@ -310,7 +322,6 @@ PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
 			path->current = pathfinding_get_other_from_edge(curPath->current,curPath->current->connections[i]);
 			path->parent = curPath;
 			priority = pathfinding_get_heuristic(path->current, endNode);
-			slog("priority: %i", priority);
 			if (priority < 0)
 			{
 				slog("Error getting the heuristic");
@@ -318,16 +329,11 @@ PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
 			}
 			pqlist_insert(pqEdges, path->edgeTaken, 1);
 			pqlist_insert(pq, path, priority * -1);
-
-			if (path->current == endNode)
-			{
-				pqlist_delete_max(pq);
-				return path;
-			}
 		}
 
 		curPath = pqlist_delete_max(pq);
 		if (curPath == NULL)
-			return NULL;
+			break;
 	}
+	return curPath;
 }
