@@ -310,6 +310,7 @@ PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
 			path->current = pathfinding_get_other_from_edge(curPath->current,curPath->current->connections[i]);
 			path->parent = curPath;
 			priority = pathfinding_get_heuristic(path->current, endNode);
+			slog("priority: %i", priority);
 			if (priority < 0)
 			{
 				slog("Error getting the heuristic");
@@ -320,6 +321,7 @@ PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
 
 			if (path->current == endNode)
 			{
+				pqlist_delete_max(pq);
 				return path;
 			}
 		}

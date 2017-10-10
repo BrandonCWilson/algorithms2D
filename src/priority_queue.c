@@ -48,9 +48,12 @@ void *pqlist_delete_max(PriorityQueueList *pq)
 		max = pq->head;
 		while (tmp->next != NULL)
 		{
-			if (max->priority < tmp->next->priority)
+			if ((int)max->priority < (int)tmp->next->priority)
 			{
-				
+				if (max->priority == 0)
+				{
+					slog("%i < %i", max->priority, tmp->next->priority);
+				}
 				prev = tmp;
 				max = tmp->next;
 			}

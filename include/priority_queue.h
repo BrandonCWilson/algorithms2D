@@ -5,7 +5,7 @@
 typedef struct PriorityNode_S
 {
 	void *data;
-	float *priority;
+	int *priority;
 	struct PriorityNode_S *next;
 }PriorityNode;
 
