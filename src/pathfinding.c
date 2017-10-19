@@ -337,7 +337,6 @@ PF_Path *pathfinding_get_path(PF_Graph *graph, Vector2D start, Vector2D end)
 		if (curPath == NULL)
 			break;
 	}
-	//FIXME
 	// free the temporary paths we built on the way
 	path = pqlist_delete_max(pqPaths);
 	while (path != NULL)
